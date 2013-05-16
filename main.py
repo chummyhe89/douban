@@ -1,77 +1,64 @@
 #!/usr/bin/env python
-#coding=utf-8
-#author:andy
-#date:2013-05-08
-import random
-from db import DBHelper
-from song import Song
-from douban import DoubanProtocol
+'''
+the entry of the program
+'''
 
-#dataDict={"华语":{"1":100},"八零":{"4":10,"1000354":10}}
-dataDict = {18:{"1000748":32,"1001061":281}}
-#dataDict={7:{"4":20,"1000354":10},9:{"1":20},17:{"9":20},18:{"1000748":32,"1001061":281}}
+from mythread import MyThread
+from log import TTLog
 
-class FMCrawler():
-	
-	def __init__(self):
-		self.m_dbPro=DoubanProtocol()	
-		self.m_sids=[]
-		self.db	= DBHelper()
-	
-	def crawl(self,data):
-		for i in data.keys():
-			tag = i
-			channels=data[i]
-			for j in channels.keys():
-				k = 0
-				c = 0
-				count = channels[j]
-				while(k <= 10000 ):
-					k+=1
-					if(len(self.m_sids) != 0):
-						t_sid = self.m_sids[random.randint(0,len(self.m_sids)-1)] 
-						jslist = self.m_dbPro.getNewPlayList(j,sid=t_sid)
-					else:
-						jslist=self.m_dbPro.getNewPlayList(j)
-					if len(jslist) != 0:
-						songs=self.parseSong(jslist,tag)
-				#		print songs
-						new_add = self.save_to_DB(songs)
-						c+=new_add		
-					if count and c>=count:
-						break
-	def parseSong(self,list,tag):
-		if len(list) == 0 :
-			return []
-		else:
-			self.m_sids = []
-			songs = []
-			for i in range(len(list)): 
-				sid=list[i].get('sid')
-				title=list[i].get('title')
-				artist=list[i].get('artist')
-				self.m_sids.append(sid)
-				song = Song(sid,title,artist,tag)
-				songs.append(song)
-			return songs
-				
-	def save_to_DB(self,songlist):
-		if len(songlist) == 0:
-			return 0
-		else:
-			c = 0
-			for i in songlist:
-				
-				try:
-					self.db.session.add(i)
-					self.db.session.commit()
-					c+=1
-				except Exception,e:
-					#logging
-#					print e
-					self.db.session.rollback()				
-					continue
-			return c
 if __name__ == "__main__":
-	fmCrawler = FMCrawler()
-	fmCrawler.crawl(dataDict)
+	'''	
+	dict_7_9_17_18 = {7:{"4":60050,"1000354":1452},9:{"1":8409},17:{"9":7176},18:{"1000748":32,"1001061":281}}
+	dict_3_5_6 = {3:{"1002588":57,"1002453":500,"1000392":157},5:{"10":9000},6:{"5":5500}}
+	dict_8_10_11 = {8:{"3":5982},10:{"6":8900},11:{"2":9225}}	
+	dict_4_12_13  = {4:{"1000191":273},12:{"17":10000,"18":4578},13:{"77":2336,"1001113":583,"1001571":625}}
+	dict_14_15_16 = {14:{"1001105":90,"1000045":96,"1003950":417},15:{"1000606":926,"1000742":379,"1001203":544},16:{"1000106":778,"1001631":115,"1000271":80}}
+	dict_20_21_22 = {20:{"32":3460},21:{"1002503":126,"1001621":618},22:{"13":7497,"1000150":305,"32":3460}}
+	dict_23_24_25 = {23:{"10":9539,"1002048":418,"1000395":437,"1001975":421},24:{"1001312":292},25:{"1001132":149,"1001351":379}}
+	dict_26_27_28 = {26:{"1003413":80,"1002626":63,"1001733":739},27:{"1003687":245},28:{"22":3329,"1000537":30,"1001403":730}}
+	dict_29_30_31 = {29:{"1001225":44,"1004219":425},30:{"17":10000},31:{"18":4578}}
+	dict_32_33_34 = {32:{"7":8930},33:{"1001433":87,"1002923":34},34:{"16":7122}}
+	dict_35_36_37 = {35:{"27":4189},36:{"13":7497,"1000150":305,"1000888":49},37:{"14":9682,"1003159":454}}
+	dict_38_39_40 = {38:{"1004179":368,"1000690":60},39:{"15":8403},40:{"1001544":120,"1001678":79,"1001240":130}}
+	dict_19_41    = {19:{"1000401":238},41:{"28":5746}}
+	'''
+	
+	dict_Info = 	{3:{"1002588":57,"1002453":500,"1000392":157},4:{"1000191":273},5:{"10":9000},
+			6:{"5":5500},7:{"4":60050,"1000354":1452},8:{"3":5982},
+			9:{"1":8409},10:{"6":8900},11:{"2":9225},
+			12:{"17":10000,"18":4578},13:{"77":2336,"1001113":583,"1001571":625},14:{"1001105":90,"1000045":96,"1003950":417},
+			15:{"1000606":926,"1000742":379,"1001203":544},16:{"1000106":778,"1001631":115,"1000271":80},17:{"9":7176},10:{"6":8900},
+			18:{"1000748":32,"1001061":281},19:{"1000401":238},20:{"32":3460},
+			21:{"1002503":126,"1001621":618},22:{"13":7497,"1000150":305,"32":3460},23:{"10":9539,"1002048":418,"1000395":437,"1001975":421},
+			24:{"1001312":292},25:{"1001132":149,"1001351":379},26:{"1003413":80,"1002626":63,"1001733":739},
+			27:{"1003687":245},28:{"22":3329,"1000537":30,"1001403":730},29:{"1001225":44,"1004219":425},
+			30:{"17":10000},31:{"18":4578},32:{"7":8930},
+			33:{"1001433":87,"1002923":34},34:{"16":7122},35:{"27":4189},
+			36:{"13":7497,"1000150":305,"1000888":49},37:{"14":9682,"1003159":454},38:{"1004179":368,"1000690":60},
+			39:{"15":8403},40:{"1001544":120,"1001678":79,"1001240":130},41:{"28":5746}}
+	
+	loads = 0
+	count = 0
+	dict_Temp = dict()
+	name_suf = ""
+	thread_pools = []
+#start threads
+	for i in dict_Info:
+		dict_Temp[i] = dict_Info[i]
+		name_suf+=str(i)+"_"
+		loads += 1
+		count += 1
+		if loads > 2 or count == len(dict_Info):
+			thread = MyThread("t_"+name_suf,dict_Temp)
+			thread.start()
+			thread_pools.append(thread)
+#			print "t_"+name_suf+"---"+str(dict_Temp)+"---"+str(loads)
+			TTLog.logger.info("thread:t_"+name_suf+"started!  service for"+str(dict_Temp)+"; loads:"+str(loads))
+			loads = 0
+			dict_Temp=dict()
+			name_suf = ""
+#wait for all threads existing		
+	for j in thread_pools:
+		j.join()	
+
+

@@ -6,6 +6,7 @@
 from song import Song,Tag
 from sqlalchemy import *
 from sqlalchemy.orm import sessionmaker
+from log import TTLog
 
 
 
@@ -18,7 +19,7 @@ db_config = {
 	}
 class DBHelper:
 	def  __init__(self):
-		self.engine=create_engine('mysql://%s:%s@%s/%s?charset=%s'%(db_config['user'],db_config['passwd'],db_config['host'],db_config['db'],db_config['charset']),echo=True)
+		self.engine=create_engine('mysql://%s:%s@%s/%s?charset=%s'%(db_config['user'],db_config['passwd'],db_config['host'],db_config['db'],db_config['charset']),echo=False)
 		Session = sessionmaker(bind = self.engine)
 		self.session=Session()
 		self.createTable()	
@@ -26,6 +27,7 @@ class DBHelper:
 			self.init_tags()
 		except:
 			#logging some tag already exitst !
+			TTLog.logger.info("some tag already exist !")
 			self.session.rollback()
 			pass
 	def createTable(self):

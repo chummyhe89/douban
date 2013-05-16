@@ -11,6 +11,7 @@ import urllib
 import urllib2
 import json
 #import adsl
+from log import TTLog
 import cookielib
 
 class DoubanProtocol:
@@ -47,18 +48,21 @@ class DoubanProtocol:
 			type = "p"
 		params = urllib.urlencode({"type":type,"channel":channel,"from":"mainsite","r":self.get_10_random_chars(),"sid":songid,"pt":220.0,"pb":64})
 		url = DoubanProtocol.baseURL + "?%s" %params
-		print url
-		req = urllib2.urlopen(urllib2.Request(url=url,headers=headers))
+		try:
+			req = urllib2.urlopen(urllib2.Request(url=url,headers=headers))
+		except Exception,e:
+			TTLog.logger.error("request failed ! error:"+str(e))
+			return []
 		if(req.code == 200 ):
 			obj = json.load(req)
 			if obj['r'] != 0:
-				#logging
+				TTLog.logger.error("request error!")
 				req.close()
 				return []
 			else:
 				return obj['song']
 		else:
-			#logging
+			TTLog.logger.error("not 2xx response code !")
 			#change ip
 			return []
 

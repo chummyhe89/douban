@@ -25,7 +25,7 @@ class Song(Base):
 		self.artist = artist
 		self.tag_id    =tag_id
 	def __repr__(self):
-		return "<Song('%s','%s','%s','%d')>" %(self.sid.encode('utf-8'),self.title.encode('utf-8'),self.artist.encode('utf-8'),self.tag_id)
+		return "<Song('%d','%s','%s','%d')>" %(self.sid,self.title.encode('utf-8'),self.artist.encode('utf-8'),self.tag_id)
 
 class Tag(Base):
 	__tablename__ = 'local_tag_id'
