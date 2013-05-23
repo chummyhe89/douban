@@ -46,15 +46,20 @@ class DoubanProtocol:
 		else:
 			songid = str(sid['sid'])
 			type = "p"
-		params = urllib.urlencode({"type":type,"channel":channel,"from":"mainsite","r":self.get_10_random_chars(),"sid":songid,"pt":220.0,"pb":64})
+		params = urllib.urlencode({"type":type,"channel":channel,"from":"radio","r":self.get_10_random_chars(),"sid":songid,"pt":220.0,"pb":64})
 		url = DoubanProtocol.baseURL + "?%s" %params
+#		print url
 		try:
 			req = urllib2.urlopen(urllib2.Request(url=url,headers=headers))
 		except Exception,e:
 			TTLog.logger.error("request failed ! error:"+str(e))
 			return []
 		if(req.code == 200 ):
-			obj = json.load(req)
+			try:
+				obj = json.load(req)
+			except Exception,e:
+				TTLog.logger.error("parse response json str failed!")
+				return []
 			if obj['r'] != 0:
 				TTLog.logger.error("request error!")
 				req.close()

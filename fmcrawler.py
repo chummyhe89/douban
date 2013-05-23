@@ -11,7 +11,11 @@ from log import TTLog
 #dataDict={"华语":{"1":100},"八零":{"4":10,"1000354":10}}
 #dataDict = {18:{"1000748":32,"1001061":281}}
 #dataDict={7:{"4":60050,"1000354":1452},9:{"1":8409},17:{"9":7176},18:{"1000748":32,"1001061":281}}
-dataDict={41:{"28":5746}}
+#dataDict={41:{"28":5746}}
+#dataDict={4:{"1000191":273}}
+#dataDict={5:{"10":9000}}
+#dataDict={6:{"5":5500}}
+dataDict={11:{"2":9225}}
 
 class FMCrawler():
 	
@@ -22,13 +26,15 @@ class FMCrawler():
 	
 	def crawl(self,data):
 		for i in data.keys():
+			if(i%3 == 0):
+				continue
 			tag = i
 			channels=data[i]
 			for j in channels.keys():
 				k = 0
 				c = 0
 				count = channels[j]
-				while(k <= 10 ):
+				while(k <= 1000 ):
 					k+=1
 					if(len(self.m_sids) != 0):
 						t_sid = self.m_sids[random.randint(0,len(self.m_sids)-1)] 
